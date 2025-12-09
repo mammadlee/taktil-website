@@ -63,22 +63,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Main Navigation */}
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-          <Link href="/">
-            <a className="text-2xl font-heading font-bold tracking-tight text-primary flex items-center gap-2">
-              <span className="w-8 h-8 rounded bg-primary flex items-center justify-center text-primary-foreground">
-                <span className="text-xl">⠞</span>
-              </span>
-              TactileOne
-            </a>
+          <Link href="/" className="text-2xl font-heading font-bold tracking-tight text-primary flex items-center gap-2">
+            <span className="w-8 h-8 rounded bg-primary flex items-center justify-center text-primary-foreground">
+              <span className="text-xl">⠞</span>
+            </span>
+            TactileOne
           </Link>
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <Link key={link.href} href={link.href}>
-                <a className={`text-base font-medium transition-colors hover:text-primary ${isActive(link.href) ? 'text-primary font-bold decoration-2 underline-offset-4 underline' : 'text-muted-foreground'}`}>
-                  {link.label}
-                </a>
+              <Link 
+                key={link.href} 
+                href={link.href}
+                className={`text-base font-medium transition-colors hover:text-primary ${isActive(link.href) ? 'text-primary font-bold decoration-2 underline-offset-4 underline' : 'text-muted-foreground'}`}
+              >
+                {link.label}
               </Link>
             ))}
           </nav>
@@ -122,10 +122,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <SheetContent side="right">
                 <nav className="flex flex-col gap-6 mt-8">
                   {navLinks.map((link) => (
-                    <Link key={link.href} href={link.href}>
-                      <a className={`text-xl font-medium ${isActive(link.href) ? 'text-primary' : 'text-foreground'}`}>
-                        {link.label}
-                      </a>
+                    <Link 
+                      key={link.href} 
+                      href={link.href}
+                      className={`text-xl font-medium ${isActive(link.href) ? 'text-primary' : 'text-foreground'}`}
+                    >
+                      {link.label}
                     </Link>
                   ))}
                   <div className="h-px bg-border my-2" />
@@ -171,10 +173,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div>
               <h4 className="text-foreground font-bold mb-4">Quick Links</h4>
               <ul className="space-y-2">
-                <li><Link href="/products"><a className="hover:underline">All Products</a></Link></li>
-                <li><Link href="/categories"><a className="hover:underline">Categories</a></Link></li>
-                <li><Link href="/about"><a className="hover:underline">About Us</a></Link></li>
-                <li><Link href="/contact"><a className="hover:underline">Contact</a></Link></li>
+                <li><Link href="/products" className="hover:underline">All Products</Link></li>
+                <li><Link href="/categories" className="hover:underline">Categories</Link></li>
+                <li><Link href="/about" className="hover:underline">About Us</Link></li>
+                <li><Link href="/contact" className="hover:underline">Contact</Link></li>
               </ul>
             </div>
 
@@ -209,10 +211,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           
           <div className="border-t border-muted-foreground/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
             <p>&copy; {new Date().getFullYear()} TactileOne. All rights reserved.</p>
-            <Link href="/admin">
-              <a className="flex items-center gap-1 hover:text-foreground transition-colors">
-                <Lock className="h-3 w-3" /> Admin Login
-              </a>
+            <Link href="/admin" className="flex items-center gap-1 hover:text-foreground transition-colors">
+              <Lock className="h-3 w-3" /> Admin Login
             </Link>
           </div>
         </div>

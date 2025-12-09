@@ -7,17 +7,32 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useToast } from "@/hooks/use-toast";
+import { submitContactForm } from "@/lib/api";
+import { useState } from "react";
 
 export default function Contact() {
   const { register, handleSubmit, reset } = useForm();
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit = (data: any) => {
-    toast({
-      title: "Message Sent",
-      description: "We'll get back to you as soon as possible.",
-    });
-    reset();
+  const onSubmit = async (data: any) => {
+    setIsSubmitting(true);
+    try {
+      await submitContactForm(data);
+      toast({
+        title: "Message Sent",
+        description: "We'll get back to you as soon as possible.",
+      });
+      reset();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -111,22 +126,22 @@ export default function Contact() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" {...register("name")} placeholder="Jane Doe" required />
+                  <Input id="name" {...register("name")} placeholder="Jane Doe" required data-testid="input-name" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" {...register("phone")} placeholder="(555) 123-4567" />
+                  <Input id="phone" {...register("phone")} placeholder="(555) 123-4567" data-testid="input-phone" />
                 </div>
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="email">Email Address</Label>
-                <Input id="email" type="email" {...register("email")} placeholder="jane@example.com" required />
+                <Input id="email" type="email" {...register("email")} placeholder="jane@example.com" required data-testid="input-email" />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="subject">Subject</Label>
-                <Input id="subject" {...register("subject")} placeholder="Product Inquiry" />
+                <Input id="subject" {...register("subject")} placeholder="Product Inquiry" data-testid="input-subject" />
               </div>
 
               <div className="space-y-2">
@@ -137,11 +152,12 @@ export default function Contact() {
                   placeholder="How can we help you?" 
                   className="min-h-[150px]" 
                   required 
+                  data-testid="textarea-message"
                 />
               </div>
 
-              <Button type="submit" size="lg" className="w-full">
-                Send Message
+              <Button type="submit" size="lg" className="w-full" disabled={isSubmitting} data-testid="button-submit">
+                {isSubmitting ? "Sending..." : "Send Message"}
               </Button>
             </form>
           </div>

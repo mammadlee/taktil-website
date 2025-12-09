@@ -1,12 +1,15 @@
 import Layout from "@/components/layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { categories, partners } from "@/lib/data";
+import { useCategories, usePartners } from "@/lib/hooks";
 import { ArrowRight, CheckCircle, Award, Users, ShieldCheck } from "lucide-react";
 import { Link } from "wouter";
 import heroImage from "@assets/generated_images/close_up_of_hand_reading_braille.png";
 
 export default function Home() {
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+  const { data: partners = [], isLoading: partnersLoading } = usePartners();
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -23,12 +26,12 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/products">
-                  <Button size="lg" className="text-lg px-8 h-14 rounded-full">
+                  <Button size="lg" className="text-lg px-8 h-14 rounded-full" data-testid="button-view-products">
                     View Products
                   </Button>
                 </Link>
                 <Link href="/contact">
-                  <Button size="lg" variant="outline" className="text-lg px-8 h-14 rounded-full border-2">
+                  <Button size="lg" variant="outline" className="text-lg px-8 h-14 rounded-full border-2" data-testid="button-contact">
                     Contact Us
                   </Button>
                 </Link>
@@ -42,7 +45,6 @@ export default function Home() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              {/* Decorative circle */}
               <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-secondary rounded-full -z-10 opacity-50 blur-2xl" />
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary rounded-full -z-10 opacity-20 blur-2xl" />
             </div>
@@ -60,30 +62,36 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.slice(0, 4).map((category, idx) => (
-              <Link key={category.id} href={`/categories`}>
-                <a className="group block h-full">
-                  <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-primary overflow-hidden">
-                    <div className="aspect-[4/3] overflow-hidden bg-muted">
-                      <img 
-                        src={category.image} 
-                        alt={`${category.name} example`}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                    </div>
-                    <CardContent className="p-6">
-                      <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{category.name}</h3>
-                      <p className="text-muted-foreground mb-4">{category.description}</p>
-                      <span className="inline-flex items-center text-primary font-medium group-hover:underline decoration-2 underline-offset-4">
-                        Explore Category <ArrowRight className="ml-2 h-4 w-4" />
-                      </span>
-                    </CardContent>
-                  </Card>
-                </a>
-              </Link>
-            ))}
-          </div>
+          {categoriesLoading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading categories...</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {categories.slice(0, 4).map((category) => (
+                <Link key={category.id} href={`/categories`}>
+                  <a className="group block h-full">
+                    <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 border-transparent hover:border-primary overflow-hidden">
+                      <div className="aspect-[4/3] overflow-hidden bg-muted">
+                        <img 
+                          src={category.image} 
+                          alt={`${category.name} example`}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                      </div>
+                      <CardContent className="p-6">
+                        <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{category.name}</h3>
+                        <p className="text-muted-foreground mb-4">{category.description}</p>
+                        <span className="inline-flex items-center text-primary font-medium group-hover:underline decoration-2 underline-offset-4">
+                          Explore Category <ArrowRight className="ml-2 h-4 w-4" />
+                        </span>
+                      </CardContent>
+                    </Card>
+                  </a>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -136,7 +144,6 @@ export default function Home() {
                 </blockquote>
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-muted rounded-full overflow-hidden">
-                    {/* Avatar placeholder */}
                     <div className="w-full h-full bg-gray-300" />
                   </div>
                   <div>
@@ -154,15 +161,18 @@ export default function Home() {
       <section className="py-16 border-t bg-muted/20">
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-8">Trusted by Organizations Worldwide</p>
-          <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
-            {partners.map((partner, idx) => (
-              <div key={idx} className="flex items-center gap-2 group cursor-default">
-                 {/* Placeholder Logo */}
-                <div className="w-10 h-10 rounded bg-foreground/10 group-hover:bg-primary/20 transition-colors" />
-                <span className="text-lg font-bold group-hover:text-primary transition-colors">{partner.name}</span>
-              </div>
-            ))}
-          </div>
+          {partnersLoading ? (
+            <p className="text-muted-foreground">Loading partners...</p>
+          ) : (
+            <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
+              {partners.map((partner) => (
+                <div key={partner.id} className="flex items-center gap-2 group cursor-default">
+                  <div className="w-10 h-10 rounded bg-foreground/10 group-hover:bg-primary/20 transition-colors" />
+                  <span className="text-lg font-bold group-hover:text-primary transition-colors">{partner.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -174,7 +184,7 @@ export default function Home() {
             Contact our team for a free consultation and quote for your accessibility project.
           </p>
           <Link href="/contact">
-            <Button size="lg" variant="secondary" className="text-lg px-8 h-14 rounded-full font-bold text-primary">
+            <Button size="lg" variant="secondary" className="text-lg px-8 h-14 rounded-full font-bold text-primary" data-testid="button-get-quote">
               Get a Quote
             </Button>
           </Link>

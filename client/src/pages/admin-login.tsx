@@ -6,19 +6,35 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Lock } from "lucide-react";
 import { useState } from "react";
 import { useLocation } from "wouter";
+import { login } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminLogin() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Mock login
-    setTimeout(() => {
+    try {
+      await login(username, password);
+      toast({
+        title: "Success",
+        description: "Logged in successfully",
+      });
+      setLocation("/admin/dashboard");
+    } catch (error: any) {
+      toast({
+        title: "Login Failed",
+        description: error.message || "Invalid credentials",
+        variant: "destructive",
+      });
+    } finally {
       setLoading(false);
-      alert("This is a mockup. In a real app, this would redirect to the dashboard.");
-    }, 1000);
+    }
   };
 
   return (
@@ -37,17 +53,35 @@ export default function AdminLogin() {
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="admin@tactileone.com" required />
+                <Label htmlFor="username">Username</Label>
+                <Input 
+                  id="username" 
+                  type="text" 
+                  placeholder="admin" 
+                  required 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  data-testid="input-username"
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" required />
+                <Input 
+                  id="password" 
+                  type="password" 
+                  required 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  data-testid="input-password"
+                />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full" disabled={loading} data-testid="button-login">
                 {loading ? "Authenticating..." : "Sign In"}
               </Button>
             </form>
+            <div className="mt-4 text-xs text-center text-muted-foreground">
+              <p>Demo credentials: admin / admin123</p>
+            </div>
           </CardContent>
         </Card>
       </div>
