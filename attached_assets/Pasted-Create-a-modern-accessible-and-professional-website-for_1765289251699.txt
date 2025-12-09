@@ -1,0 +1,127 @@
+Create a modern, accessible, and professional website for a company that sells tactile products for visually impaired individuals.
+The website should prioritize usability, accessibility, and clear information presentation. It must be fully responsive, SEO-optimized, and easy to navigate for all users — including those using screen readers.
+
+Main Requirements
+1. Website Purpose
+
+The website will serve as an informational and product showcase platform for tactile products designed for visually impaired people.
+Users should be able to browse categories, view products, read about the company, and contact the team.
+
+2. Pages / Sections
+🔹 Home Page
+
+Clean hero section with a strong message about supporting visually impaired individuals
+
+Highlights of main product categories
+
+Short introduction about the company
+
+“Why choose us?” section
+
+Partner/Collaboration companies slider
+
+Call-to-action buttons (View Products, Contact Us)
+
+🔹 About Us
+
+Company mission and values
+
+What tactile products are and why they matter
+
+Company history and achievements
+
+Photos or icons describing quality and accessibility
+
+🔹 Products Page
+
+A list/grid of tactile products
+
+Product image, title, short description
+
+Clicking a product shows full details
+
+Clear layout suitable for accessibility tools
+
+🔹 Categories Page
+
+List of all product categories
+
+Each category shows:
+
+Category name
+
+Short description
+
+Image
+
+Button to view all products in that category
+
+Example categories:
+
+Tactile Maps
+
+Braille Signage
+
+Tactile Floor Indicators
+
+Braille Labels & Stickers
+
+Accessibility Tools
+
+🔹 Partners / Collaborations
+
+Logos or cards of partner companies
+
+Short description of what type of collaboration existed
+
+Option to contact for cooperation
+
+Smooth slider animation
+
+🔹 Contact Page
+
+Contact form (Name, Email, Phone, Message)
+
+Google Map embed
+
+Company address, phone, email
+
+Working hours
+
+Accessibility statement
+
+3. Additional Features
+
+Admin Panel:
+To manage products, categories, partners, and general content.
+
+AI Assistant Chatbot:
+A built-in AI bot to help users find products and answer questions.
+
+Accessibility Features:
+
+High-contrast mode
+
+Larger text option
+
+Screen reader–friendly structure
+
+Keyboard navigation support
+
+4. Design Style
+
+Minimal, professional, modern
+
+Smooth animations
+
+Soft colors, large typography
+
+Icons and visuals that represent accessibility and tactile design
+
+5. Target Audience
+
+Visually impaired individuals
+
+Schools, institutions, government organizations
+
+Accessibility departments and NGOs
