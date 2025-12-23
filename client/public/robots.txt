@@ -1,0 +1,19 @@
+# Taktil.az - Robots.txt
+# Bu fayl axtarış motorlarına hansı səhifələri indeksləşdirməyin icazəli olduğunu göstərir
+
+User-agent: *
+Allow: /
+Allow: /products
+Allow: /gallery
+Allow: /about
+Allow: /contact
+
+# Admin paneli qorunmalıdır
+Disallow: /admin/
+Disallow: /api/
+
+# Sitemap URL
+Sitemap: https://taktil.az/sitemap.xml
+
+# Sürətli tarama üçün crawl delay
+Crawl-delay: 1

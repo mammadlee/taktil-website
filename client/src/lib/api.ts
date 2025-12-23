@@ -1,29 +1,16 @@
-import type { Category, Product, Partner } from "@shared/schema";
+import type { Product, ContactSubmission } from "@shared/schema";
 
 const API_BASE = "/api";
 
-// Categories
-export async function fetchCategories(): Promise<Category[]> {
-  const res = await fetch(`${API_BASE}/categories`);
-  if (!res.ok) throw new Error("Failed to fetch categories");
-  return res.json();
-}
 
 // Products
 export async function fetchProducts(): Promise<Product[]> {
-  const res = await fetch(`${API_BASE}/products`);
+  const res = await fetch(`${API_BASE}/products`, { credentials: "include" });
   if (!res.ok) throw new Error("Failed to fetch products");
   return res.json();
 }
 
-// Partners
-export async function fetchPartners(): Promise<Partner[]> {
-  const res = await fetch(`${API_BASE}/partners`);
-  if (!res.ok) throw new Error("Failed to fetch partners");
-  return res.json();
-}
-
-// Contact form
+// Contact form (public submit)
 export async function submitContactForm(data: {
   name: string;
   email: string;
@@ -35,19 +22,32 @@ export async function submitContactForm(data: {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
+    credentials: "include",
   });
   if (!res.ok) throw new Error("Failed to submit contact form");
 }
 
+// Contact submissions (admin inbox)
+export async function fetchContactSubmissions(): Promise<ContactSubmission[]> {
+  const res = await fetch(`${API_BASE}/contact`, { credentials: "include" });
+  if (res.status === 401) throw new Error("Unauthorized");
+  if (!res.ok) throw new Error("Failed to fetch contact submissions");
+  return res.json();
+}
+
 // Auth
-export async function login(username: string, password: string): Promise<{ id: string; username: string }> {
+export async function login(
+  username: string,
+  password: string
+): Promise<{ id: string; username: string }> {
   const res = await fetch(`${API_BASE}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
+    credentials: "include",
   });
   if (!res.ok) {
-    const error = await res.json();
+    const error = await res.json().catch(() => ({}));
     throw new Error(error.message || "Login failed");
   }
   return res.json();
@@ -56,12 +56,13 @@ export async function login(username: string, password: string): Promise<{ id: s
 export async function logout(): Promise<void> {
   const res = await fetch(`${API_BASE}/auth/logout`, {
     method: "POST",
+    credentials: "include",
   });
   if (!res.ok) throw new Error("Logout failed");
 }
 
 export async function getCurrentUser(): Promise<{ id: string; username: string } | null> {
-  const res = await fetch(`${API_BASE}/auth/me`);
+  const res = await fetch(`${API_BASE}/auth/me`, { credentials: "include" });
   if (res.status === 401) return null;
   if (!res.ok) throw new Error("Failed to fetch user");
   return res.json();

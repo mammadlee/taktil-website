@@ -156,7 +156,41 @@
   }
 }
 
-/* Utility for large text mode */
-.text-large {
-  font-size: 125%;
+@keyframes gallery-scroll-fast {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-gallery-scroll-fast {
+  animation: gallery-scroll-fast 18s linear infinite;
+}
+
+/* scrollbar gizlət */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@media (max-width: 768px) {
+    .top-nav {
+        top: 5px; /* Mobildə lap yuxarıda görünsün */
+        padding: 10px;
+    }
+
+    .nav-links {
+        justify-content: center; /* Mobildə mərkəzdə dayansın */
+        gap: 15px; /* Yazılar arasında boşluq */
+        font-size: 14px; /* Yazı ölçüsü bir az kiçilsin */
+    }
+
+    .nav-links a {
+        padding: 8px 12px; /* Toxunma sahəsini genişləndirir (UX üçün vacibdir) */
+    }
 }

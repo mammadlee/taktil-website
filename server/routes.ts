@@ -1,18 +1,21 @@
 import type { Express } from "express";
-import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { 
-  insertCategorySchema, 
-  insertProductSchema, 
-  insertPartnerSchema,
-  insertContactSubmissionSchema 
-} from "@shared/schema";
-import bcrypt from "bcryptjs";
+import type { Server } from "http";
 import session from "express-session";
-import MemoryStore from "memorystore";
+import pgSession from "connect-pg-simple";
+import bcrypt from "bcryptjs";
 
-const MemStore = MemoryStore(session);
+import { storage } from "./storage";
+import cloudinary from "./cloudinary";
 
+import {
+  insertProductSchema,
+  insertContactSubmissionSchema,
+  insertGallerySchema,
+} from "@shared/schema";
+
+/* =========================
+   SESSION TYPES
+========================= */
 declare module "express-session" {
   interface SessionData {
     userId?: string;
@@ -20,6 +23,9 @@ declare module "express-session" {
   }
 }
 
+/* =========================
+   AUTH GUARD
+========================= */
 function requireAuth(req: any, res: any, next: any) {
   if (!req.session.userId) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -27,61 +33,94 @@ function requireAuth(req: any, res: any, next: any) {
   next();
 }
 
+/* =========================
+   RATE LIMIT (simple MVP)
+========================= */
+function rateLimit({ windowMs, max }: { windowMs: number; max: number }) {
+  const hits = new Map<string, { count: number; resetAt: number }>();
+
+  return (req: any, res: any, next: any) => {
+    const key = req.ip || "unknown";
+    const now = Date.now();
+    const current = hits.get(key);
+
+    if (!current || now > current.resetAt) {
+      hits.set(key, { count: 1, resetAt: now + windowMs });
+      return next();
+    }
+
+    if (current.count >= max) {
+      return res.status(429).json({ message: "Too many requests" });
+    }
+
+    current.count += 1;
+    hits.set(key, current);
+    next();
+  };
+}
+
+/* =========================
+   REGISTER ROUTES
+========================= */
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  
-  // Session configuration
+  /* =========================
+     SESSION SETUP
+  ========================= */
+  app.set("trust proxy", 1);
+
+  const PgSession = pgSession(session);
+
   app.use(
     session({
-      secret: process.env.SESSION_SECRET || "tactileone-secret-key-change-in-production",
+      secret: process.env.SESSION_SECRET || "dev-secret",
       resave: false,
       saveUninitialized: false,
-      store: new MemStore({
-        checkPeriod: 86400000,
+      store: new PgSession({
+        conString: process.env.DATABASE_URL,
+        tableName: "session",
+        createTableIfMissing: true,
       }),
       cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+        maxAge: 1000 * 60 * 60 * 24 * 7,
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
       },
     })
   );
 
-  // Auth routes
-  app.post("/api/auth/login", async (req, res) => {
-    try {
+  /* =========================
+     AUTH
+  ========================= */
+  app.post(
+    "/api/auth/login",
+    rateLimit({ windowMs: 60_000, max: 10 }),
+    async (req, res) => {
       const { username, password } = req.body;
-      
+
       const user = await storage.getUserByUsername(username);
       if (!user) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      const validPassword = await bcrypt.compare(password, user.password);
-      if (!validPassword) {
+      const valid = await bcrypt.compare(password, user.password);
+      if (!valid) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
       req.session.userId = user.id;
       req.session.username = user.username;
-      
-      res.json({ 
-        id: user.id, 
-        username: user.username 
-      });
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
+
+      res.json({ id: user.id, username: user.username });
     }
-  });
+  );
 
   app.post("/api/auth/logout", (req, res) => {
-    req.session.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ message: "Could not log out" });
-      }
-      res.json({ message: "Logged out successfully" });
+    req.session.destroy(() => {
+      res.json({ message: "Logged out" });
     });
   });
 
@@ -89,198 +128,106 @@ export async function registerRoutes(
     if (!req.session.userId) {
       return res.status(401).json({ message: "Not authenticated" });
     }
-    res.json({ 
-      id: req.session.userId, 
-      username: req.session.username 
+
+    res.json({
+      id: req.session.userId,
+      username: req.session.username,
     });
   });
 
-  // Public routes - Categories
-  app.get("/api/categories", async (req, res) => {
-    try {
-      const allCategories = await storage.getAllCategories();
-      res.json(allCategories);
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
+  /* =========================
+     CLOUDINARY SIGN
+  ========================= */
+  app.post("/api/uploads/sign", requireAuth, (_req, res) => {
+    const timestamp = Math.round(Date.now() / 1000);
+
+    const signature = cloudinary.utils.api_sign_request(
+      {
+        timestamp,
+        folder: "tactileone",
+      },
+      process.env.CLOUDINARY_API_SECRET!
+    );
+
+    res.json({
+      timestamp,
+      signature,
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+      apiKey: process.env.CLOUDINARY_API_KEY,
+      folder: "tactileone",
+    });
   });
 
-  app.get("/api/categories/:id", async (req, res) => {
-    try {
-      const category = await storage.getCategory(parseInt(req.params.id));
-      if (!category) {
-        return res.status(404).json({ message: "Category not found" });
-      }
-      res.json(category);
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
-  });
-
-  // Admin routes - Categories
-  app.post("/api/categories", requireAuth, async (req, res) => {
-    try {
-      const validatedData = insertCategorySchema.parse(req.body);
-      const category = await storage.createCategory(validatedData);
-      res.status(201).json(category);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
-  });
-
-  app.patch("/api/categories/:id", requireAuth, async (req, res) => {
-    try {
-      const category = await storage.updateCategory(
-        parseInt(req.params.id), 
-        req.body
-      );
-      if (!category) {
-        return res.status(404).json({ message: "Category not found" });
-      }
-      res.json(category);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
-  });
-
-  app.delete("/api/categories/:id", requireAuth, async (req, res) => {
-    try {
-      const deleted = await storage.deleteCategory(parseInt(req.params.id));
-      if (!deleted) {
-        return res.status(404).json({ message: "Category not found" });
-      }
-      res.json({ message: "Category deleted" });
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
-  });
-
-  // Public routes - Products
-  app.get("/api/products", async (req, res) => {
-    try {
-      const allProducts = await storage.getAllProducts();
-      res.json(allProducts);
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
+  /* =========================
+     PRODUCTS
+  ========================= */
+  app.get("/api/products", async (_req, res) => {
+    res.json(await storage.getAllProducts());
   });
 
   app.get("/api/products/:id", async (req, res) => {
-    try {
-      const product = await storage.getProduct(parseInt(req.params.id));
-      if (!product) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-      res.json(product);
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
+    const product = await storage.getProduct(Number(req.params.id));
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
     }
+    res.json(product);
   });
 
-  // Admin routes - Products
   app.post("/api/products", requireAuth, async (req, res) => {
-    try {
-      const validatedData = insertProductSchema.parse(req.body);
-      const product = await storage.createProduct(validatedData);
-      res.status(201).json(product);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
+    const data = insertProductSchema.parse(req.body);
+    const product = await storage.createProduct(data);
+    res.status(201).json(product);
   });
 
   app.patch("/api/products/:id", requireAuth, async (req, res) => {
-    try {
-      const product = await storage.updateProduct(
-        parseInt(req.params.id), 
-        req.body
-      );
-      if (!product) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-      res.json(product);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
+    const product = await storage.updateProduct(
+      Number(req.params.id),
+      req.body
+    );
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
     }
+
+    res.json(product);
   });
 
   app.delete("/api/products/:id", requireAuth, async (req, res) => {
-    try {
-      const deleted = await storage.deleteProduct(parseInt(req.params.id));
-      if (!deleted) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-      res.json({ message: "Product deleted" });
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
+    await storage.deleteProduct(Number(req.params.id));
+    res.json({ success: true });
   });
 
-  // Public routes - Partners
-  app.get("/api/partners", async (req, res) => {
-    try {
-      const allPartners = await storage.getAllPartners();
-      res.json(allPartners);
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
+  /* =========================
+     GALLERY (QALEREYA)
+  ========================= */
+  // Public (Home üçün)
+  app.get("/api/gallery", async (_req, res) => {
+    res.json(await storage.getAllGallery());
   });
 
-  // Admin routes - Partners
-  app.post("/api/partners", requireAuth, async (req, res) => {
-    try {
-      const validatedData = insertPartnerSchema.parse(req.body);
-      const partner = await storage.createPartner(validatedData);
-      res.status(201).json(partner);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
+  // Admin
+  app.post("/api/gallery", requireAuth, async (req, res) => {
+    const data = insertGallerySchema.parse(req.body);
+    const item = await storage.createGallery(data);
+    res.status(201).json(item);
   });
 
-  app.patch("/api/partners/:id", requireAuth, async (req, res) => {
-    try {
-      const partner = await storage.updatePartner(
-        parseInt(req.params.id), 
-        req.body
-      );
-      if (!partner) {
-        return res.status(404).json({ message: "Partner not found" });
-      }
-      res.json(partner);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
+  app.delete("/api/gallery/:id", requireAuth, async (req, res) => {
+    const ok = await storage.deleteGallery(Number(req.params.id));
+    res.json({ success: ok });
   });
 
-  app.delete("/api/partners/:id", requireAuth, async (req, res) => {
-    try {
-      const deleted = await storage.deletePartner(parseInt(req.params.id));
-      if (!deleted) {
-        return res.status(404).json({ message: "Partner not found" });
-      }
-      res.json({ message: "Partner deleted" });
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
-  });
-
-  // Contact submissions
+  /* =========================
+     CONTACT
+  ========================= */
   app.post("/api/contact", async (req, res) => {
-    try {
-      const validatedData = insertContactSubmissionSchema.parse(req.body);
-      const submission = await storage.createContactSubmission(validatedData);
-      res.status(201).json(submission);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
-    }
+    const data = insertContactSubmissionSchema.parse(req.body);
+    const submission = await storage.createContactSubmission(data);
+    res.status(201).json(submission);
   });
 
-  app.get("/api/contact", requireAuth, async (req, res) => {
-    try {
-      const submissions = await storage.getAllContactSubmissions();
-      res.json(submissions);
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
+  app.get("/api/contact", requireAuth, async (_req, res) => {
+    res.json(await storage.getAllContactSubmissions());
   });
 
   return httpServer;

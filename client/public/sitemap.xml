@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- Ana səhifə - Ən yüksək prioritet -->
+  <url>
+    <loc>https://taktil.az/</loc>
+    <lastmod>2024-12-23</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Məhsullar kataloqu -->
+  <url>
+    <loc>https://taktil.az/products</loc>
+    <lastmod>2024-12-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Qalereya -->
+  <url>
+    <loc>https://taktil.az/gallery</loc>
+    <lastmod>2024-12-23</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Haqqımızda -->
+  <url>
+    <loc>https://taktil.az/about</loc>
+    <lastmod>2024-12-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Əlaqə səhifəsi -->
+  <url>
+    <loc>https://taktil.az/contact</loc>
+    <lastmod>2024-12-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- 
+    QEYD: Dinamik məhsul səhifələri üçün (məs: /products/1, /products/2)
+    backend tərəfdən avtomatik sitemap generator yaratmaq lazımdır.
+    Bu statik sitemap sadəcə əsas səhifələri əhatə edir.
+  -->
+
+</urlset>
