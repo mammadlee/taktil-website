@@ -60,6 +60,9 @@ export class DatabaseStorage implements IStorage {
   constructor() {
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
+      ssl: {
+        rejectUnauthorized: false, // 🔴 NEON + RAILWAY ÜÇÜN MÜTLƏQDİR
+      },
     });
 
     this.db = drizzle(pool);
