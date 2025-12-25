@@ -1,23 +1,30 @@
 import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(__dirname, "../dist/public");
+  // process.cwd() tətbiqin başladığı ana qovluğu göstərir. 
+  // Railway və build prosesi üçün ən stabil yol budur.
+  const distPath = path.resolve(process.cwd(), "dist", "public");
   
-  if (!fs.existsSync(distPath)) {
+  // Əgər dist/public yoxdursa (lokal inkişaf zamanı), kök public-ə baxır
+  const publicPath = fs.existsSync(distPath) ? distPath : path.resolve(process.cwd(), "public");
+
+  if (!fs.existsSync(publicPath) && process.env.NODE_ENV === "production") {
     throw new Error(
-      `Could not find the build directory: ${distPath}, make sure to build the client first`,
+      `Statik build qovluğu tapılmadı: ${publicPath}. Zəhmət olmasa əvvəlcə 'npm run build' edin.`
     );
   }
 
-  app.use(express.static(distPath));
+  app.use(express.static(publicPath));
 
+  // SPA (Single Page Application) marşrutlaşdırması üçün vacibdir
   app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+    const indexPath = path.resolve(publicPath, "index.html");
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(404).send("Frontend build tapılmadı (index.html)");
+    }
   });
 }

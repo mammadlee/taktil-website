@@ -3,7 +3,6 @@ import { SEO } from "@/components/seo";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Award, Users, Play, Pause, Volume2, VolumeX, ArrowRight, ShieldCheck } from "lucide-react";
 import { Link } from "wouter";
-import heroImage from "@assets/generated_images/close_up_of_hand_reading_braille.png";
 import { useEffect, useRef, useState } from "react";
 
 export default function Home() {
@@ -31,26 +30,27 @@ export default function Home() {
           setIsPlaying(false);
         }
       },
-      { threshold: 0.6 }
+      { threshold: 0.5 } // Slightly lowered for better mobile trigger
     );
 
     observer.observe(wrapper);
     return () => observer.disconnect();
   }, [muted, volume]);
 
-  const togglePlay = () => {
+  const togglePlay = (e: React.MouseEvent) => {
+    e.preventDefault();
     const video = videoRef.current;
     if (!video) return;
     video.paused ? (video.play(), setIsPlaying(true)) : (video.pause(), setIsPlaying(false));
   };
 
-  const toggleMute = () => {
+  const toggleMute = (e: React.MouseEvent) => {
+    e.preventDefault();
     if (!videoRef.current) return;
     videoRef.current.muted = !muted;
     setMuted(!muted);
   };
 
-  // ✅ STRUCTURED DATA for Home Page
   const homeStructuredData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -74,15 +74,17 @@ export default function Home() {
         structuredData={homeStructuredData}
       />
 
-      {/* ================= HERO SECTION ================= */}
-      <section className="relative min-h-[90vh] flex items-center pt-20 pb-16 overflow-hidden">
-        <div className="absolute top-0 right-0 -z-10 w-1/2 h-full bg-blue-50/50 rounded-l-[100px] hidden lg:block" />
-        <div className="absolute top-[10%] left-[5%] -z-10 w-72 h-72 bg-blue-200/30 blur-[120px] rounded-full" />
+      {/* HERO SECTION */}
+      <section className="relative min-h-[auto] lg:min-h-[80vh] flex items-center pt-24 md:pt-32 pb-12 md:pb-20 overflow-hidden">
+        {/* Background Decorations - Adjusted for Mobile */}
+        <div className="absolute top-0 right-0 -z-10 w-full lg:w-1/2 h-full bg-blue-50/50 rounded-b-[40px] lg:rounded-b-none lg:rounded-l-[80px]" />
         
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 text-blue-700 text-sm font-semibold">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            
+            {/* TEXT CONTENT */}
+            <div className="space-y-6 text-center lg:text-left order-2 lg:order-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100/50 border border-blue-200 text-blue-700 text-xs md:text-sm font-bold mx-auto lg:mx-0">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
@@ -90,35 +92,36 @@ export default function Home() {
                 Azərbaycanda Əlçatanlıq Lideri
               </div>
               
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] text-slate-900">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-slate-900">
                 Həyatlara <span className="text-blue-600 italic font-serif">toxunuruq</span>, dünyanı əlçatan edirik.
               </h1>
 
-              <p className="text-xl text-slate-600 leading-relaxed max-w-xl">
+              <p className="text-base md:text-lg lg:text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
                 Görmə məhdudiyyətli insanlar üçün beynəlxalq standartlara uyğun taktil həllər və maneəsiz mühit layihələri təqdim edirik.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/products">
-                  <Button size="lg" className="h-16 px-10 rounded-2xl bg-blue-600 hover:bg-blue-700 text-lg shadow-xl shadow-blue-200 transition-all hover:-translate-y-1">
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start pt-2">
+                <Link href="/products" className="w-full sm:w-auto">
+                  <Button size="lg" className="w-full h-12 md:h-14 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-base shadow-lg shadow-blue-200 transition-all active:scale-95">
                     Məhsulları kəşf et <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
-                <Link href="/contact">
-                  <Button size="lg" variant="outline" className="h-16 px-10 rounded-2xl border-2 hover:bg-slate-50 text-lg transition-all">
+                <Link href="/contact" className="w-full sm:w-auto">
+                  <Button size="lg" variant="outline" className="w-full h-12 md:h-14 px-8 rounded-xl border-2 hover:bg-slate-50 text-base active:scale-95">
                     Pulsuz Konsultasiya
                   </Button>
                 </Link>
               </div>
             </div>
 
-            <div className="relative group">
-              <div className="absolute -inset-4 bg-gradient-to-tr from-blue-600 to-blue-300 rounded-[40px] opacity-10 blur-2xl group-hover:opacity-20 transition duration-500" />
-              <div className="relative rounded-[40px] overflow-hidden border-8 border-white shadow-2xl transform lg:rotate-2 group-hover:rotate-0 transition duration-500">
+            {/* HERO IMAGE */}
+            <div className="relative group order-1 lg:order-2 px-4 sm:px-10 lg:px-0">
+              <div className="absolute -inset-2 bg-gradient-to-tr from-blue-600 to-blue-300 rounded-[32px] opacity-15 blur-2xl" />
+              <div className="relative rounded-[32px] overflow-hidden border-4 border-white shadow-2xl transform lg:rotate-2 transition duration-500">
                 <img
-                  src={heroImage}
-                  alt="Braille əlifbası ilə oxuma - Taktil sistemlər"
-                  className="w-full aspect-[4/5] object-cover scale-105 group-hover:scale-100 transition duration-700"
+                  src="/braille.png"
+                  alt="Braille əlifbası ilə oxuma"
+                  className="w-full aspect-[4/3] lg:aspect-square object-cover scale-105"
                   loading="eager"
                 />
               </div>
@@ -127,93 +130,79 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ================= FEATURES ================= */}
-      <section className="py-24 bg-white">
-        <div className="container mx-auto px-4 text-center">
-          <div className="max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">Niyə Taktil.az?</h2>
-            <p className="text-lg text-slate-600 leading-relaxed">
-              Biz sadəcə məhsul satmırıq, biz hər kəsin bərabər hüquqlu hərəkət edə biləcəyi gələcəyi inşa edirik.
+      {/* FEATURES SECTION */}
+      <section className="py-16 md:py-24 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <h2 className="text-2xl md:text-4xl font-bold text-slate-900 mb-4">Niyə Taktil.az?</h2>
+            <p className="text-slate-600 text-base md:text-lg">
+              Biz hər kəsin bərabər hüquqlu hərəkət edə biləcəyi maneəsiz gələcəyi inşa edirik.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             <FeatureCard
-              icon={<ShieldCheck className="w-8 h-8" />}
-              title="Layihələndirmə və Mühəndislik"
-              text="Əməkdaşlarımız beynəlxalq standartlar əsasında prosesindən əvvəlindən etibarən yerində baxış keçirərək uyğun layihə hazırlayır, icrasına buna uyğun davam edirlər."
+              icon={<ShieldCheck className="w-6 h-6 md:w-8 md:h-8" />}
+              title="Layihələndirmə"
+              text="Beynəlxalq standartlar əsasında yerində baxış keçirərək peşəkar layihə hazırlayırıq."
             />
             <FeatureCard
-              icon={<Award className="w-8 h-8" />}
+              icon={<Award className="w-6 h-6 md:w-8 md:h-8" />}
               title="Yüksək Keyfiyyət"
               text="Ən müasir texnologiyalar və uzunömürlü, sertifikatlı materiallarla zəmanətli icra."
             />
             <FeatureCard
-              icon={<Users className="w-8 h-8" />}
-              title="Əlçatan mühit"
+              icon={<Users className="w-6 h-6 md:w-8 md:h-8" />}
+              title="Əlçatan Mühit"
               text="Məkanın hər kəs üçün bərabər və maneəsiz istifadəsini təmin edən qlobal həllər."
             />
           </div>
         </div>
       </section>
 
-      {/* ================= VIDEO EXPERIENCE ================= */}
-      <section className="py-24 bg-slate-50 border-y border-slate-100">
+      {/* VIDEO SECTION */}
+      <section className="py-16 md:py-24 bg-slate-50">
         <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="order-2 lg:order-1">
-              <div
-                ref={videoWrapperRef}
-                className="relative rounded-[32px] overflow-hidden shadow-2xl bg-black aspect-video group"
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            
+            <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl bg-black group" ref={videoWrapperRef}>
+              <video
+                ref={videoRef}
+                muted
+                loop
+                playsInline
+                className="w-full h-full object-cover"
               >
-                <video
-                  ref={videoRef}
-                  muted
-                  loop
-                  playsInline
-                  className="w-full h-full object-cover"
-                  aria-label="Taktil sistemlərin quraşdırılması haqqında video"
-                >
-                  <source src="/video/intro.mp4" type="video/mp4" />
-                  Brauzeriniz video formatını dəstəkləmir.
-                </video>
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition duration-300" />
-                
-                <div className="absolute bottom-6 left-6 right-6 flex justify-between items-center opacity-0 group-hover:opacity-100 transition duration-300 transform translate-y-2 group-hover:translate-y-0">
-                  <button 
-                    onClick={togglePlay} 
-                    className="bg-white/20 backdrop-blur-md text-white p-4 rounded-2xl hover:bg-white/30 transition"
-                    aria-label={isPlaying ? "Videonu dayandır" : "Videonu oynat"}
-                  >
-                    {isPlaying ? <Pause /> : <Play />}
+                <source src="/video/intro.mp4" type="video/mp4" />
+              </video>
+              
+              {/* Mobile Friendly Controls */}
+              <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                <div className="flex gap-4">
+                  <button onClick={togglePlay} className="p-4 bg-white/20 backdrop-blur-xl rounded-full text-white hover:bg-white/40 transition">
+                    {isPlaying ? <Pause size={24} /> : <Play size={24} className="ml-1" />}
                   </button>
-                  <button 
-                    onClick={toggleMute} 
-                    className="bg-white/20 backdrop-blur-md text-white p-4 rounded-2xl hover:bg-white/30 transition"
-                    aria-label={muted ? "Səsi aç" : "Səsi bağla"}
-                  >
-                    {muted ? <VolumeX /> : <Volume2 />}
+                  <button onClick={toggleMute} className="p-4 bg-white/20 backdrop-blur-xl rounded-full text-white hover:bg-white/40 transition">
+                    {muted ? <VolumeX size={24} /> : <Volume2 size={24} />}
                   </button>
                 </div>
               </div>
             </div>
 
-            <div className="order-1 lg:order-2 space-y-8">
-              <h2 className="text-4xl font-bold text-slate-900 leading-tight">
-                Əlçatanlıq necə işləyir? <br />
+            <div className="space-y-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
+                Əlçatanlıq necə işləyir? <br className="hidden md:block" />
                 <span className="text-blue-600">Video bələdçimizə baxın.</span>
               </h2>
-              <div className="space-y-4">
+              <div className="grid gap-4">
                 {[
                   "İstiqamətləndirici taktil plitələr",
                   "Braille informasiya lövhələri",
                   "Standartlara tam uyğun quraşdırma",
                   "İstifadəçi təhlükəsizliyi testi"
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-3 text-lg text-slate-700">
-                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
-                      <CheckCircle className="w-4 h-4 text-blue-600" />
-                    </div>
+                  <div key={i} className="flex items-center gap-3 text-slate-700 font-medium">
+                    <CheckCircle className="w-6 h-6 text-blue-600 flex-shrink-0" />
                     {item}
                   </div>
                 ))}
@@ -223,24 +212,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ================= CTA ================= */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="bg-blue-600 rounded-[48px] p-12 md:p-20 text-center text-white relative overflow-hidden shadow-2xl shadow-blue-200">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-            
-            <h2 className="text-3xl md:text-5xl font-bold mb-8 max-w-3xl mx-auto leading-tight">
-              Məkanınızı hər kəs üçün əlçatan etməyə hazırsınız?
-            </h2>
-            <p className="text-xl text-blue-100 mb-12 max-w-xl mx-auto font-light">
-              Mütəxəssis rəyi və pulsuz layihələndirmə üçün bizimlə əlaqə saxlayın.
-            </p>
-            <Link href="/contact">
-              <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 h-16 px-12 rounded-2xl text-lg font-bold shadow-lg transition-transform hover:-translate-y-1">
-                Təklif Alın
-              </Button>
-            </Link>
+      {/* CTA SECTION */}
+      <section className="py-12 md:py-20 px-4">
+        <div className="container mx-auto max-w-5xl">
+          <div className="bg-blue-600 rounded-[32px] p-8 md:p-16 text-center text-white relative overflow-hidden shadow-2xl shadow-blue-200">
+            <div className="relative z-10">
+              <h2 className="text-2xl md:text-4xl font-bold mb-6">Məkanınızı hər kəs üçün əlçatan etməyə hazırsınız?</h2>
+              <p className="text-blue-100 mb-8 max-w-xl mx-auto text-lg">Mütəxəssis rəyi və pulsuz layihələndirmə üçün bizimlə əlaqə saxlayın.</p>
+              <Link href="/contact">
+                <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 h-14 px-10 rounded-xl text-lg font-bold transition-transform active:scale-95">
+                  Təklif Alın
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -250,12 +234,12 @@ export default function Home() {
 
 function FeatureCard({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
   return (
-    <div className="group bg-white rounded-[32px] p-10 shadow-sm border border-slate-50 hover:border-blue-100 hover:shadow-2xl hover:shadow-blue-100 transition-all duration-500">
-      <div className="w-16 h-16 mb-8 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 rotate-3 group-hover:rotate-0">
+    <div className="bg-slate-50 p-8 rounded-3xl border border-transparent hover:border-blue-100 hover:bg-white hover:shadow-xl transition-all duration-300">
+      <div className="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center mb-6 shadow-lg shadow-blue-100">
         {icon}
       </div>
-      <h3 className="text-2xl font-bold mb-4 text-slate-900">{title}</h3>
-      <p className="text-slate-500 text-lg leading-relaxed">{text}</p>
+      <h3 className="text-xl font-bold mb-3 text-slate-900">{title}</h3>
+      <p className="text-slate-600 leading-relaxed">{text}</p>
     </div>
   );
 }

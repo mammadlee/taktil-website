@@ -35,12 +35,8 @@ export async function setupVite(server: Server, app: Express) {
     const url = req.originalUrl;
 
     try {
-      const clientTemplate = path.resolve(
-        import.meta.dirname,
-        "..",
-        "client",
-        "index.html",
-      );
+      // Faylın daxilində tapın və dəyişdirin:
+      const clientTemplate = path.resolve(process.cwd(), "client", "index.html");
 
       // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");

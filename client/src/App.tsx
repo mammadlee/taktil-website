@@ -8,7 +8,6 @@ import { AccessibilityProvider } from "@/hooks/use-accessibility";
 import Home from "@/pages/home";
 import Products from "@/pages/products";
 import ProductDetailsPage from "@/pages/product-details";
-import Categories from "@/pages/categories";
 import About from "@/pages/about";
 import Contact from "@/pages/contact";
 import AdminLogin from "@/pages/admin-login";
@@ -31,7 +30,6 @@ function Router() {
       <Route path="/gallery" component={GalleryPage} />
 
       {/* PAGES */}
-      <Route path="/categories" component={Categories} />
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
 

@@ -43,23 +43,18 @@
 
 /* BASE THEME - Soft, Professional, Accessible */
 :root {
-  /* Soft Cream Background for reduced eye strain */
   --background: 40 20% 98%; 
-  /* Deep Charcoal for high contrast text */
   --foreground: 220 15% 15%;
 
-  /* Clean White for Cards */
   --card: 0 0% 100%;
   --card-foreground: 220 15% 15%;
 
   --popover: 0 0% 100%;
   --popover-foreground: 220 15% 15%;
 
-  /* Primary: Accessible Blue */
   --primary: 220 85% 35%;
   --primary-foreground: 0 0% 100%;
 
-  /* Secondary: Warm/Tactile accent (Clay/Terracotta) */
   --secondary: 25 20% 90%;
   --secondary-foreground: 25 50% 30%;
 
@@ -94,7 +89,7 @@
   --primary: 0 0% 0%;
   --primary-foreground: 0 0% 100%;
   
-  --secondary: 60 100% 50%; /* Pure Yellow */
+  --secondary: 60 100% 50%;
   --secondary-foreground: 0 0% 0%;
   
   --muted: 0 0% 90%;
@@ -119,7 +114,7 @@
   --popover: 220 15% 14%;
   --popover-foreground: 40 20% 98%;
 
-  --primary: 215 90% 60%; /* Brighter blue for dark mode */
+  --primary: 215 90% 60%;
   --primary-foreground: 220 15% 10%;
 
   --secondary: 220 15% 20%;
@@ -143,16 +138,62 @@
   * {
     @apply border-border;
   }
+  
   body {
     @apply font-sans antialiased bg-background text-foreground transition-colors duration-300;
+    /* Tighter default spacing for mobile */
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+  
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading font-bold tracking-tight;
+    /* Tighter line-height for headings */
+    line-height: 1.2;
+  }
+  
+  /* Tighter paragraphs */
+  p {
+    line-height: 1.6;
   }
   
   /* Focus styles for accessibility */
   :focus-visible {
-    @apply outline-4 outline-offset-2 outline-primary;
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+  
+  /* Optimize container spacing for mobile */
+  .container {
+    @apply mx-auto;
+    /* Tighter padding on mobile */
+    padding-left: 1rem;  /* 16px */
+    padding-right: 1rem; /* 16px */
+  }
+  
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem; /* 24px */
+      padding-right: 1.5rem;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem; /* 32px */
+      padding-right: 2rem;
+    }
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
@@ -169,28 +210,65 @@
   animation: gallery-scroll-fast 18s linear infinite;
 }
 
-/* scrollbar gizlət */
+/* Scrollbar hide */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
+/* Mobile-specific optimizations */
 @media (max-width: 768px) {
-    .top-nav {
-        top: 5px; /* Mobildə lap yuxarıda görünsün */
-        padding: 10px;
-    }
+  /* Reduce default spacing */
+  html {
+    font-size: 16px; /* Base font size */
+  }
+  
+  /* Tighter sections on mobile */
+  section {
+    scroll-margin-top: 5rem;
+  }
+  
+  /* Optimize buttons for touch */
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
 
-    .nav-links {
-        justify-content: center; /* Mobildə mərkəzdə dayansın */
-        gap: 15px; /* Yazılar arasında boşluq */
-        font-size: 14px; /* Yazı ölçüsü bir az kiçilsin */
-    }
+/* Tablet optimizations */
+@media (min-width: 768px) and (max-width: 1023px) {
+  html {
+    font-size: 17px;
+  }
+}
 
-    .nav-links a {
-        padding: 8px 12px; /* Toxunma sahəsini genişləndirir (UX üçün vacibdir) */
-    }
+/* Desktop optimizations */
+@media (min-width: 1024px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+/* Large text mode for accessibility */
+.text-large {
+  font-size: 120% !important;
+}
+
+.text-large h1 {
+  font-size: 130% !important;
+}
+
+.text-large h2 {
+  font-size: 125% !important;
+}
+
+.text-large p,
+.text-large li,
+.text-large a {
+  font-size: 120% !important;
+  line-height: 1.7 !important;
 }
