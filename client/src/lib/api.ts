@@ -1,11 +1,9 @@
 import type { Product, ContactSubmission } from "@shared/schema";
-
-const API_BASE = "/api";
-
+import { getApiUrl } from "./apiConfig";
 
 // Products
 export async function fetchProducts(): Promise<Product[]> {
-  const res = await fetch(`${API_BASE}/products`, { credentials: "include" });
+  const res = await fetch(getApiUrl("/api/products"), { credentials: "include" });
   if (!res.ok) throw new Error("Failed to fetch products");
   return res.json();
 }
@@ -18,7 +16,7 @@ export async function submitContactForm(data: {
   subject?: string;
   message: string;
 }): Promise<void> {
-  const res = await fetch(`${API_BASE}/contact`, {
+  const res = await fetch(getApiUrl("/api/contact"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -29,7 +27,7 @@ export async function submitContactForm(data: {
 
 // Contact submissions (admin inbox)
 export async function fetchContactSubmissions(): Promise<ContactSubmission[]> {
-  const res = await fetch(`${API_BASE}/contact`, { credentials: "include" });
+  const res = await fetch(getApiUrl("/api/contact"), { credentials: "include" });
   if (res.status === 401) throw new Error("Unauthorized");
   if (!res.ok) throw new Error("Failed to fetch contact submissions");
   return res.json();
@@ -40,7 +38,7 @@ export async function login(
   username: string,
   password: string
 ): Promise<{ id: string; username: string }> {
-  const res = await fetch(`${API_BASE}/auth/login`, {
+  const res = await fetch(getApiUrl("/api/auth/login"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password }),
@@ -54,7 +52,7 @@ export async function login(
 }
 
 export async function logout(): Promise<void> {
-  const res = await fetch(`${API_BASE}/auth/logout`, {
+  const res = await fetch(getApiUrl("/api/auth/logout"), {
     method: "POST",
     credentials: "include",
   });
@@ -62,7 +60,7 @@ export async function logout(): Promise<void> {
 }
 
 export async function getCurrentUser(): Promise<{ id: string; username: string } | null> {
-  const res = await fetch(`${API_BASE}/auth/me`, { credentials: "include" });
+  const res = await fetch(getApiUrl("/api/auth/me"), { credentials: "include" });
   if (res.status === 401) return null;
   if (!res.ok) throw new Error("Failed to fetch user");
   return res.json();

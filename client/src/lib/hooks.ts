@@ -4,6 +4,7 @@ import {
   fetchContactSubmissions,
 } from "./api";
 import type { Gallery } from "@shared/schema";
+import { getApiUrl } from "./apiConfig";
 
 
 /* =========================
@@ -23,7 +24,7 @@ export function useCategories() {
   return useQuery({
     queryKey: ["/api/categories"],
     queryFn: async () => {
-      const res = await fetch("/api/categories");
+      const res = await fetch(getApiUrl("/api/categories"));
       if (!res.ok) {
         throw new Error("Failed to fetch categories");
       }
@@ -49,7 +50,7 @@ export function useGallery() {
   return useQuery<Gallery[]>({
     queryKey: ["gallery"],
     queryFn: async () => {
-      const res = await fetch("/api/gallery");
+      const res = await fetch(getApiUrl("/api/gallery"));
       if (!res.ok) {
         throw new Error("Failed to fetch gallery");
       }

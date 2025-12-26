@@ -1,6 +1,8 @@
+import { getApiUrl } from "./apiConfig";
+
 export async function uploadToCloudinary(file: File): Promise<string> {
   // 1. get signature
-  const signRes = await fetch("/api/uploads/sign", {
+  const signRes = await fetch(getApiUrl("/api/uploads/sign"), {
     method: "POST",
     credentials: "include",
   });

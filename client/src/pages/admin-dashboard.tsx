@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import type { Product, ContactSubmission } from "@shared/schema";
 import { getCurrentUser, logout } from "@/lib/api";
+import { getApiUrl } from "@/lib/apiConfig";  // ← YENİ İMPORT
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -55,7 +56,7 @@ import {
    HELPERS & API
 ========================= */
 async function fetchJSON<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, init);
+  const res = await fetch(url, { ...init, credentials: "include" });  // ← credentials əlavə
   if (!res.ok) {
     let msg = `Request failed: ${res.status}`;
     try {
@@ -74,7 +75,7 @@ async function signUpload() {
     cloudName: string;
     apiKey: string;
     folder: string;
-  }>("/api/uploads/sign", { method: "POST" });
+  }>(getApiUrl("/api/uploads/sign"), { method: "POST" });  // ← DÜZƏLDİLDİ
 }
 
 async function uploadToCloudinary(file: File): Promise<string> {
@@ -208,40 +209,65 @@ export default function AdminDashboard() {
 
   const { data: products = [] } = useQuery<Product[]>({
     queryKey: ["products"],
-    queryFn: () => fetchJSON<Product[]>("/api/products"),
+    queryFn: () => fetchJSON<Product[]>(getApiUrl("/api/products")),  // ← DÜZƏLDİLDİ
   });
 
   const { data: submissions = [], isLoading: submissionsLoading } = useQuery<ContactSubmission[]>({
     queryKey: ["contactSubmissions"],
-    queryFn: () => fetchJSON<ContactSubmission[]>("/api/contact"),
+    queryFn: () => fetchJSON<ContactSubmission[]>(getApiUrl("/api/contact")),  // ← DÜZƏLDİLDİ
   });
 
   const { data: gallery = [], isLoading: galleryLoading } = useGallery();
 
   // Mutations
   const createProductMut = useMutation({
-    mutationFn: (payload: any) => fetchJSON("/api/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["products"] }); setProductDialogOpen(false); toast({ title: "Uğurlu", description: "Məhsul əlavə edildi" }); },
+    mutationFn: (payload: any) => fetchJSON(getApiUrl("/api/products"), {  // ← DÜZƏLDİLDİ
+      method: "POST", 
+      headers: { "Content-Type": "application/json" }, 
+      body: JSON.stringify(payload)
+    }),
+    onSuccess: () => { 
+      qc.invalidateQueries({ queryKey: ["products"] }); 
+      setProductDialogOpen(false); 
+      toast({ title: "Uğurlu", description: "Məhsul əlavə edildi" }); 
+    },
   });
 
   const updateProductMut = useMutation({
-    mutationFn: ({ id, data }: any) => fetchJSON(`/api/products/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["products"] }); setProductDialogOpen(false); toast({ title: "Yeniləndi", description: "Məhsul məlumatları dəyişdirildi" }); },
+    mutationFn: ({ id, data }: any) => fetchJSON(getApiUrl(`/api/products/${id}`), {  // ← DÜZƏLDİLDİ
+      method: "PATCH", 
+      headers: { "Content-Type": "application/json" }, 
+      body: JSON.stringify(data)
+    }),
+    onSuccess: () => { 
+      qc.invalidateQueries({ queryKey: ["products"] }); 
+      setProductDialogOpen(false); 
+      toast({ title: "Yeniləndi", description: "Məhsul məlumatları dəyişdirildi" }); 
+    },
   });
 
   const deleteProductMut = useMutation({
-    mutationFn: (id: number) => fetchJSON(`/api/products/${id}`, { method: "DELETE" }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["products"] }); toast({ title: "Silindi", description: "Məhsul sistemdən silindi" }); },
+    mutationFn: (id: number) => fetchJSON(getApiUrl(`/api/products/${id}`), { method: "DELETE" }),  // ← DÜZƏLDİLDİ
+    onSuccess: () => { 
+      qc.invalidateQueries({ queryKey: ["products"] }); 
+      toast({ title: "Silindi", description: "Məhsul sistemdən silindi" }); 
+    },
   });
 
   const addGalleryMut = useMutation({
     mutationFn: (image: string) => createGallery({ image }),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["gallery"] }); toast({ title: "Əlavə edildi" }); },
+    onSuccess: () => { 
+      qc.invalidateQueries({ queryKey: ["gallery"] }); 
+      toast({ title: "Əlavə edildi" }); 
+    },
   });
 
   const deleteGalleryMut = useMutation({
     mutationFn: (id: number) => deleteGallery(id),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["gallery"] }); toast({ title: "Şəkil silindi" }); },
+    onSuccess: () => { 
+      qc.invalidateQueries({ queryKey: ["gallery"] }); 
+      toast({ title: "Şəkil silindi" }); 
+    },
   });
 
   // Dialog States

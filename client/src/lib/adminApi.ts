@@ -1,5 +1,6 @@
 import { apiRequest } from "@/lib/queryClient";
-import type {InsertProduct,  } from "@shared/schema";
+import type { InsertProduct } from "@shared/schema";
+import { getApiUrl } from "./apiConfig";
 
 export async function deleteCategory(id: number) {
   await apiRequest("DELETE", `/api/categories/${id}`);
@@ -19,7 +20,7 @@ export async function deleteProduct(id: number) {
 }
 
 export async function createGallery(data: { image: string }) {
-  const res = await fetch("/api/gallery", {
+  const res = await fetch(getApiUrl("/api/gallery"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -31,7 +32,7 @@ export async function createGallery(data: { image: string }) {
 
 
 export async function deleteGallery(id: number) {
-  const res = await fetch(`/api/gallery/${id}`, {
+  const res = await fetch(getApiUrl(`/api/gallery/${id}`), {
     method: "DELETE",
   });
 
@@ -41,7 +42,7 @@ export async function deleteGallery(id: number) {
 
 // Mesajı silmək üçün API funksiyası
 export async function deleteContactSubmission(id: number) {
-  const res = await fetch(`/api/contact/${id}`, {
+  const res = await fetch(getApiUrl(`/api/contact/${id}`), {
     method: "DELETE",
   });
   if (!res.ok) throw new Error("Mesaj silinərkən xəta baş verdi");

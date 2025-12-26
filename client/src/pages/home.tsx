@@ -89,7 +89,7 @@ export default function Home() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
                 </span>
-                Azərbaycanda Əlçatanlıq Lideri
+                Azərbaycan İnklüziv Mühit Lideri
               </div>
               
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-slate-900">
@@ -191,7 +191,7 @@ export default function Home() {
 
             <div className="space-y-6">
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
-                Əlçatanlıq necə işləyir? <br className="hidden md:block" />
+                İnkluziv cəmiyyətə inteqrasiya necə işləyir? <br className="hidden md:block" />
                 <span className="text-blue-600">Video bələdçimizə baxın.</span>
               </h2>
               <div className="grid gap-4">
